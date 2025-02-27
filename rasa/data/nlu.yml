@@ -1,0 +1,32 @@
+# Training data for intents
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - Hi
+    - Hello
+    - Good morning
+
+- intent: symptom_check
+  examples: |
+    - I have [headache](symptom) and [fever](symptom)
+    - [Chest pain](symptom) lasting [3 days](duration)
+    - What could cause [dizziness](symptom)?
+
+- intent: ask_medication
+  examples: |
+    - Side effects of [metformin](medication)
+    - Can I take [ibuprofen](medication) with [alcohol](substance)?
+    - Interactions between [aspirin](medication) and [warfarin](medication)
+
+- intent: mental_health
+  examples: |
+    - How to reduce anxiety?
+    - I'm feeling depressed
+    - Tips for better sleep
+
+- intent: chronic_care
+  examples: |
+    - Diet for diabetes
+    - How to monitor blood pressure?
