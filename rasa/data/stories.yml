@@ -1,0 +1,41 @@
+# Conversation Flows
+version: "3.1"
+
+stories:
+
+# Story 1: Symptom Assessment Flow
+- story: symptom check path
+  steps:
+  - intent: symptom_check
+    entities:
+    - symptom: "headache"
+    - duration: "3 days"
+  - action: utter_ask_duration
+  - intent: affirm
+  - action: action_check_knowledge_base
+  - action: utter_disclaimer
+
+# Story 2: Medication Query Flow
+- story: medication interaction check
+  steps:
+  - intent: ask_medication
+    entities:
+    - medication: "ibuprofen"
+    - substance: "alcohol"
+  - action: action_check_knowledge_base
+  - action: utter_disclaimer
+
+# Story 3: Mental Health Support
+- story: anxiety support flow
+  steps:
+  - intent: mental_health
+  - action: action_llm_fallback   # Direct to LLM for open-ended advice
+  - action: utter_disclaimer
+
+# Story 4: Chronic Care Management
+- story: diabetes diet advice
+  steps:
+  - intent: chronic_care
+    entities:
+    - condition: "diabetes"
+  - action: action_check_knowledge_base
