@@ -1,0 +1,9 @@
+{
+    "headache": {
+      "description": "Common causes include stress, dehydration...",
+      "urgency": {
+        ">24h": "Consult a doctor",
+        "<24h": "Rest and hydrate"
+      }
+    }
+  }
