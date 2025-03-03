@@ -5,15 +5,6 @@ Medical Bot which can act as an doctor assistant - Symptom Assessment & Triage, 
 
 ## Integration Architecture:
 
-User Query
-    │
-    ↓
-[RASA NLU] ───→ [Intent Detection & Entity Extraction]
-    │
-    └→ [Knowledge Base] → Check KB → If Found → Return KB Answer ────────────────────────────────────→↓
-                                   │                                                                  ├──→ Combine KB fact + LLM explanation ─→ Return Response to User
-                                   └→ If Not Found → [LLM Integration] → Generates Dynamic Response──→↑
-                                                    └─→ Safety Check
 <img width="1113" alt="Health-bot Integration Architecture" src="https://github.com/user-attachments/assets/4a885364-ae5a-438b-9fb3-b2c79f8985cc" />
 
 
