@@ -14,6 +14,8 @@ User Query
                                    │                                                                  ├──→ Combine KB fact + LLM explanation ─→ Return Response to User
                                    └→ If Not Found → [LLM Integration] → Generates Dynamic Response──→↑
                                                     └─→ Safety Check
+<img width="1113" alt="Health-bot Integration Architecture" src="https://github.com/user-attachments/assets/4a885364-ae5a-438b-9fb3-b2c79f8985cc" />
+
 
 
 ## Key Workflows:
