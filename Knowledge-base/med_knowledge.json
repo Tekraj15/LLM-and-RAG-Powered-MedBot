@@ -1,9 +1,113 @@
 {
+  "symptoms": {
     "headache": {
-      "description": "Common causes include stress, dehydration...",
+      "description": "Pain in the head or neck region",
+      "common_causes": ["Tension", "Migraine", "Dehydration", "Sinusitis"],
       "urgency": {
-        ">24h": "Consult a doctor",
-        "<24h": "Rest and hydrate"
+        "<24h": "Rest, hydrate, and monitor. Use OTC pain relievers like acetaminophen.",
+        "24h-72h": "Consult a doctor if pain worsens.",
+        ">72h": "Seek immediate medical attention."
+      },
+      "when_to_see_doctor": "If accompanied by vomiting, vision changes, or confusion."
+    },
+    "chest_pain": {
+      "description": "Discomfort in the chest area",
+      "red_flags": ["Radiates to arm/jaw", "Shortness of breath", "Sweating"],
+      "urgency": {
+        "immediate": "Call emergency services. Could indicate heart attack."
+      }
+    },
+    "fever": {
+      "description": "Body temperature above 100.4°F (38°C)",
+      "common_causes": ["Infection", "Inflammation"],
+      "urgency": {
+        "<3_days": "Rest, hydrate, and monitor. Use acetaminophen.",
+        ">3_days": "Consult a doctor for persistent fever."
+      }
+    },
+    "dizziness": {
+      "description": "Feeling lightheaded or unsteady",
+      "common_causes": ["Low blood sugar", "Dehydration", "Inner ear issues"],
+      "when_to_see_doctor": "If accompanied by chest pain or fainting."
+    }
+  },
+  
+  "medications": {
+    "ibuprofen": {
+      "uses": "Pain relief, fever reduction",
+      "side_effects": ["Stomach irritation", "Kidney strain"],
+      "precautions": "Avoid with alcohol or blood thinners",
+      "max_daily_dose": "3200 mg (for adults)"
+    },
+    "metformin": {
+      "uses": "Type 2 diabetes management",
+      "side_effects": ["Nausea", "Diarrhea"],
+      "precautions": "Not for patients with kidney disease"
+    },
+    "amoxicillin": {
+      "uses": "Bacterial infections",
+      "side_effects": ["Rash", "Diarrhea"],
+      "precautions": "Complete full course to avoid resistance"
+    }
+  },
+
+  "interactions": {
+    "ibuprofen,warfarin": "Increases bleeding risk",
+    "metformin,alcohol": "Risk of lactic acidosis",
+    "amoxicillin,probiotics": "Probiotics may reduce antibiotic effectiveness (take 2 hours apart)"
+  },
+
+  "chronic_conditions": {
+    "diabetes": {
+      "management": {
+        "diet": "Low glycemic index foods, portion control",
+        "monitoring": "Check blood sugar 2-4 times daily",
+        "red_flags": ["Blurred vision", "Excessive thirst"]
+      }
+    },
+    "hypertension": {
+      "management": {
+        "diet": "Low sodium (<1500mg/day), DASH diet",
+        "monitoring": "Measure BP twice daily",
+        "red_flags": ["BP >180/120", "Severe headache"]
+      }
+    },
+    "asthma": {
+      "management": {
+        "triggers": "Avoid smoke, pollen, cold air",
+        "emergency": "Use rescue inhaler. Go to ER if no improvement."
       }
     }
-  }
+  },
+
+  "mental_health": {
+    "anxiety": {
+      "coping_strategies": ["Deep breathing", "Grounding exercises (5-4-3-2-1 technique)"],
+      "resources": ["National Suicide Prevention Lifeline: 988 (US)"]
+    },
+    "depression": {
+      "signs": ["Persistent sadness", "Loss of interest in activities"],
+      "action": "Consult a licensed therapist for evaluation"
+    }
+  },
+
+  "lab_tests": {
+    "cbc": {
+      "purpose": "Evaluate overall health and detect anemia, infection",
+      "components": ["Hemoglobin", "White blood cells", "Platelets"]
+    },
+    "lipid_panel": {
+      "purpose": "Assess heart disease risk",
+      "normal_ranges": {
+        "LDL": "<100 mg/dL",
+        "HDL": ">60 mg/dL"
+      }
+    }
+  },
+
+  "sources": {
+    "disclaimer": "This is sample data. Always consult a licensed physician.",
+    "references": ["MedlinePlus", "WHO Guidelines", "CDC"]
+  },
+  "last_updated": "2023-10-01"
+}
