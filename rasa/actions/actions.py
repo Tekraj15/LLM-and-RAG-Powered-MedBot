@@ -1,13 +1,87 @@
-# Core Logic
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.events import SlotSet
 from typing import Any, Text, Dict, List
 import json
+import requests  # For DeepSeek API calls
+import os
 
-# Load knowledge base (simplified example)
-with open("knowledge-base/medical_kb.json") as f:
-    MEDICAL_KB = json.load(f)
+# Load environment variables
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "my-api-key")
+
+# --- Knowledge Base ---
+with open("knowledge-base/med_knowledge.json") as f:
+    med_knowledge = json.load(f)
+
+# --- Helper Functions ---
+def get_llm_response(prompt: str, medical_context: str = "") -> str:
+    """Call DeepSeek-R1 API with proper configuration"""
+    headers = {
+        "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+    
+    system_message = f"""You are a medical assistant. Follow these rules:
+    1. Base answers on: {medical_context}
+    2. Never invent facts. Say "I don't know" if unsure.
+    3. Prioritize safety and clarity."""
+    
+    payload = {
+        "model": "deepseek-r1",  # Official model name
+        "messages": [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.2,  # Lower for medical accuracy
+        "max_tokens": 200
+    }
+    
+    try:
+        response = requests.post(
+            "https://api.deepseek.com/v1/chat/completions",  # Verified endpoint
+            headers=headers,
+            json=payload,
+            timeout=15
+        )
+        if response.status_code == 200:
+            return response.json()["choices"][0]["message"]["content"]
+        return "I recommend consulting a healthcare professional."
+    except Exception as e:
+        return "I'm unable to respond. Please consult a doctor."
+
+# --- Action Classes ---
+class ActionCheckSymptoms(Action):
+    """Handles symptom_check intent (matches stories.yml)"""
+    def name(self) -> Text:
+        return "action_check_symptoms"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+            
+        entities = {e["entity"]: e["value"] for e in tracker.latest_message.get("entities", [])}
+        symptom = entities.get("symptom", "").lower()
+        duration = entities.get("duration", "")
+        
+        # 1. Check Knowledge Base
+        kb_response = None
+        if symptom in med_knowledge["symptoms"]:
+            kb_data = med_knowledge["symptoms"][symptom]
+            if duration and "urgency" in kb_data:
+                kb_response = kb_data["urgency"].get(duration)
+        
+        # 2. If KB found, use LLM to explain
+        if kb_response:
+            prompt = f"Explain this medical advice in simple terms: {kb_response}"
+            llm_response = get_llm_response(prompt, str(kb_data))
+            dispatcher.utter_message(text=llm_response)
+        else:
+            prompt = f"Assess {symptom} lasting {duration} with possible causes"
+            llm_response = get_llm_response(prompt, json.dumps(med_knowledge["symptoms"]))
+            dispatcher.utter_message(text=llm_response)
+        
+        return [SlotSet("symptom", symptom), SlotSet("duration", duration)]
 
 class ActionCheckKnowledgeBase(Action):
     def name(self) -> Text:
@@ -17,46 +91,29 @@ class ActionCheckKnowledgeBase(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
 
-        # Extract entities from the latest message
-        entities = {e["entity"]: e["value"] for e in tracker.latest_message.get("entities", [])}
-        intent = tracker.latest_message.get("intent", {}).get("name")
-
-        response = None
-
-        # Symptom + Duration Check (matches stories.yml "symptom check path")
-        if intent == "symptom_check":
-            symptom = entities.get("symptom")
-            duration = entities.get("duration")
-            if symptom and duration:
-                response = MEDICAL_KB["symptoms"].get(symptom, {}).get("urgency", {}).get(duration)
-                if not response:
-                    response = self.get_llm_response(f"Explain {symptom} lasting {duration}")
-
-        # Medication Interaction Check (matches "medication interaction check" story)
-        elif intent == "ask_medication":
-            meds = [e for e in entities.values() if e in MEDICAL_KB["medications"]]
+        intent = tracker.latest_message["intent"]["name"]
+        user_query = tracker.latest_message["text"]
+        
+        # Medication/Interaction Check
+        if intent == "ask_medication":
+            meds = [e["value"] for e in tracker.latest_message["entities"] 
+                    if e["entity"] == "medication"]
             if len(meds) >= 2:
-                interaction = MEDICAL_KB["interactions"].get(tuple(sorted(meds)))
-                response = interaction or self.get_llm_response(f"Interaction between {meds[0]} and {meds[1]}")
+                interaction = med_knowledge["interactions"].get(",".join(sorted(meds)))
+                if interaction:
+                    prompt = f"Explain drug interaction: {interaction}"
+                    response = get_llm_response(prompt, interaction)
+                else:
+                    prompt = f"Potential interaction between {meds[0]} and {meds[1]}"
+                    response = get_llm_response(prompt, json.dumps(med_knowledge["medications"]))
+                dispatcher.utter_message(text=response)
+                return []
 
-        # Chronic Care (matches "diabetes diet advice" story)
-        elif intent == "chronic_care":
-            condition = entities.get("condition")
-            response = MEDICAL_KB["chronic_conditions"].get(condition, {}).get("advice")
-
-        # Fallback if no KB match
-        if not response:
-            response = self.get_llm_response(tracker.latest_message.get('text'))
-
-        dispatcher.utter_message(text=response)
-        return [SlotSet(key, value) for key, value in entities.items()]  # Save entities to slots
-
-    def get_llm_response(self, query: Text) -> Text:
-        # Simplified - replace with actual LLM API call
-        return "I recommend consulting a doctor for personalized advice."
+        # For other intents, use default implementation
+        dispatcher.utter_message(text=get_llm_response(user_query))
+        return []
 
 class ActionLLMFallback(Action):
-    """Handles mental_health intents (matches 'anxiety support flow' story)"""
     def name(self) -> Text:
         return "action_llm_fallback"
 
@@ -64,13 +121,10 @@ class ActionLLMFallback(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         
-        prompt = f"""You are a mental health assistant. Respond to:
-        {tracker.latest_message.get('text')}
-        """
-        response = self.get_llm_response(prompt)
+        user_query = tracker.latest_message["text"]
+        response = get_llm_response(
+            prompt=user_query,
+            medical_context=json.dumps(med_knowledge["mental_health"])
+        )
         dispatcher.utter_message(text=response)
         return []
-
-    def get_llm_response(self, query: Text) -> Text:
-        # Add OpenAI/other LLM integration here
-        return "Consider mindfulness exercises. Breathe deeply for 5 minutes."
