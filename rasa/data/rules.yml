@@ -1,4 +1,3 @@
-# Critical Flows
 version: "3.1"
 
 rules:
@@ -10,10 +9,16 @@ rules:
 - rule: Symptom check starter
   steps:
   - intent: symptom_check
-  - action: utter_ask_duration
+  - action: utter_ask_symptoms  # CHANGED TO ASK FOR SYMPTOMS FIRST
 
-- rule: Fallback to LLM
+- rule: Symptom duration follow-up
+  steps:
+  - intent: symptom_check
+    entities: 
+    - symptom
+  - action: utter_ask_duration  # NOW ASKS FOR DURATION AFTER SYMPTOM IS PROVIDED
+
+- rule: Medication query handler
   steps:
   - intent: ask_medication
   - action: action_check_knowledge_base
-  - active_loop: action_check_knowledge_base
