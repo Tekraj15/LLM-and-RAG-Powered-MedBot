@@ -8,6 +8,14 @@ nlu:
     - Hello
     - Good morning
 
+- intent: affirm
+  examples: |
+    - Yes
+    - Yep
+    - Sure
+    - Absolutely
+    - That's right
+
 - intent: symptom_check
   examples: |
     - I have [headache](symptom) and [fever](symptom)
@@ -30,3 +38,11 @@ nlu:
   examples: |
     - Diet for diabetes
     - How to monitor blood pressure?
+
+- intent: deny
+  examples: |
+    - No
+    - Nope
+    - Not really
+    - I don't think so
+    - Negative
