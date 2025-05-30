@@ -1,6 +1,6 @@
-# RASA-Health-bot
+# LLM-integrated-Med-ChabtBot
 
-Medical Bot which can act as an doctor assistant - Symptom Assessment & Triage, Medical information , mental health support, and Chronic Disease Management. 
+A RASA chatbot that can act as a doctor's assistant, providing symptom assessment and triage, Medical information, mental health support, and Chronic Disease Management, etc., with LLM integration for handling ambiguous queries(out of the scope of KB) and generating dynamic responses.. 
 
 
 ## Integration Architecture:
