@@ -9,16 +9,17 @@ rules:
 - rule: Symptom check starter
   steps:
   - intent: symptom_check
-  - action: utter_ask_symptoms  # CHANGED TO ASK FOR SYMPTOMS FIRST
+  - action: utter_ask_symptoms # Changed to ask for symptom first
 
 - rule: Symptom duration follow-up
   steps:
   - intent: symptom_check
     entities: 
     - symptom
-  - action: utter_ask_duration  # NOW ASKS FOR DURATION AFTER SYMPTOM IS PROVIDED
+  - action: utter_ask_duration # Now ask for duration after symptom is provided
 
-- rule: Medication query handler
+- rule: Medication query handler  # Updated to maintain story flow 
   steps:
   - intent: ask_medication
   - action: action_check_knowledge_base
+  - action: utter_disclaimer  # Added to match story
