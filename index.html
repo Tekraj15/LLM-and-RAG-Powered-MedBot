@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Medical Chatbot</title>
+  <title>LLM Integrated Medical Assistant Chatbot</title>
   <script src="https://storage.googleapis.com/mrbot-cdn/webchat-0.14.0.js"></script>
 </head>
 <body>
@@ -9,11 +9,17 @@
   <script>
     WebChat.default.init({
       selector: "#webchat",
+      initPayload: "Hello! How can I help you?",
       customData: {"userId": "123"},
       socketUrl: "http://localhost:5005",
       socketPath: "/socket.io/",
       title: "Health/Medical Assistant",
-      subtitle: "Hey, How can I help you?",
+      subtitle: "Hey, I'm a Medical Assistant Chatbot with LLM integration for advanced queries. You can ask me about Symptom assessment and triage, Medical information, mental health support, and Chronic Disease Management, etc.",
+      inputTextFieldHint: "Type your message...",
+      profileAvatar: "https://example.com/medical-bot.png",
+      params: {
+        "storage": "session"  // Persist chat across page refreshes
+      }
     });
   </script>
 </body>
