@@ -21,7 +21,7 @@ A RASA chatbot that can act as a doctor's assistant, providing symptom assessmen
 
 
 2. LLM Augmentation:
-    For complex or open-ended questions (e.g., "How to manage diabetes?"), the LLM elaborates using KB data.
+    For complex or open-ended questions (e.g., "How to manage diabetes?"), LLM elaborates using KB data.
 
     Example prompt:
     "Based on [KB_Diabetes_Guide], list 3 diet tips for diabetes. Use simple language."  
@@ -32,4 +32,4 @@ A RASA chatbot that can act as a doctor's assistant, providing symptom assessmen
     Example:
     
     if llm_response not in KB["allowed_advice"]:  
-        return "Consult a doctor."  
+        return "Consult a doctor."
