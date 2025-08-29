@@ -75,7 +75,7 @@ RAG is being built with the following capabilities to solve the Key LLM limitati
 
 ## Example Workflows:
 
-# Case 1: Medication Interaction (Structured + RAG)
+Case 1: Medication Interaction (Structured + RAG)
 
 ```python
 # User: "Can I take aspirin with warfarin?"
@@ -98,7 +98,7 @@ response = generate_rag_response(
 # Response: "According to DrugBank: Aspirin may increase the anticoagulant effect of warfarin, increasing bleeding risk. Sources: DrugBank 2024, PubMed Study 2023"
 ```
 
-# Case 2: Emerging Health Topic (RAG-Primary)
+Case 2: Emerging Health Topic (RAG-Primary)
 
 ```python
 # User: "Latest treatment for long COVID?"
