@@ -26,7 +26,7 @@ MEDICAL_APIS = {
 
 ## RASA Chatbot with LLM Integration: Architecture
 
-<img width="1113" alt="Health-bot Integration Architecture" src="https://github.com/user-attachments/assets/4a885364-ae5a-438b-9fb3-b2c79f8985cc" />
+<img width="1113" height="702" alt="Health-bot Integration Architecture" src="https://github.com/user-attachments/assets/4a885364-ae5a-438b-9fb3-b2c79f8985cc" />
 
 ## RAG Supported Architecture(WIP)
 
@@ -39,7 +39,7 @@ RAG is being built with the following capabilities to solve the Key LLM limitati
 - Traceability: Every response can reference its source (e.g., CDC, DrugBank).
 
 - Customization: Blend general medical knowledge with your proprietary guidelines.
-<img width="6323" height="522" alt="RAG Integration Architecture" src="https://github.com/user-attachments/assets/c90d5e5c-6377-4f83-96ae-440a188794d7" />
+<img width="6323" height="702" alt="RAG Integration Architecture" src="https://github.com/user-attachments/assets/c90d5e5c-6377-4f83-96ae-440a188794d7" />
 
 
 # FINAL Workflow:
