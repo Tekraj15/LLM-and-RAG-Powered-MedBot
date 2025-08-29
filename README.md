@@ -42,7 +42,7 @@ RAG is being built with the following capabilities to solve the Key LLM limitati
 <img width="6323" height="702" alt="RAG Integration Architecture" src="https://github.com/user-attachments/assets/c90d5e5c-6377-4f83-96ae-440a188794d7" />
 
 
-# FINAL Workflow:
+## Final Workflow:
 <img width="1532" height="1245" alt="LLM-RAG-Final Workflow" src="https://github.com/user-attachments/assets/a22545c4-1798-473c-8da4-67a2dbc7b50a" />
 
 
