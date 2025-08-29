@@ -1,7 +1,24 @@
-# LLM-and-RAG-Powered-MedBot
+## LLM-and-RAG-Powered-MedBot
 
 A RASA chatbot that can act as a doctor's assistant, providing symptom assessment and triage, Medical information, mental health support, and Chronic Disease Management, etc., with integration of LLM  for handling ambiguous queries(out of the scope of the Knowledge Base) and generating dynamic responses, and RAG to solve the limitations of LLM.
 
+## Data Sources for RAG
+1. Structured Medical Knowledge
+- DrugBank API: Medication interactions & side effects
+- CDC Guidelines: Prevention & treatment protocols
+- PubMed Abstracts: Latest research findings
+- WHO Disease Guidelines: International standards
+
+2. Unstructured Data Processing
+- PDF Parsing and Extraction
+
+3. Real-time API Integration with Medical Knowledge Bases
+   
+MEDICAL_APIS = {
+    "drug_interactions": "https://api.drugbank.com/v1/interactions",
+    "symptom_checker": "https://api.infermedica.com/v3/diagnosis",
+    "clinical_guidelines": "https://clinicaltrials.gov/api/v2/studies"
+}
 
 ## Integration Architecture:
 
