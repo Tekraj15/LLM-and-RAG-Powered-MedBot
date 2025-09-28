@@ -1,6 +1,8 @@
 ## LLM-and-RAG-Powered-MedBot
 
-A RASA chatbot that can act as a doctor's assistant, providing symptom assessment and triage, Medical information, mental health support, and Chronic Disease Management, etc., with integration of LLM  for handling ambiguous queries(out of the scope of the Knowledge Base) and generating dynamic responses, and RAG to solve the limitations of LLM.
+An advanced RASA-based medical chatbot with **Retrieval-Augmented Generation (RAG)** capabilities, providing intelligent symptom assessment, medication guidance, mental health support, and chronic disease management with **source attribution and safety validation**, supported by LLM  for handling ambiguous queries(out of the scope of the Knowledge Base) and generating dynamic responses, and RAG for solving the limitations of LLM.
+
+
 
 ## Data Sources for RAG
 1. Structured Medical Knowledge
@@ -24,21 +26,32 @@ MEDICAL_APIS = {
     
 }
 
+
+
 ## RASA Chatbot with LLM Integration: Architecture
 
 <img width="1113" height="702" alt="Health-bot Integration Architecture" src="https://github.com/user-attachments/assets/4a885364-ae5a-438b-9fb3-b2c79f8985cc" />
 
+
+## 🚀 New RAG Features
+
+### ✅ **Enhanced Capabilities**
+- **Intelligent Query Routing**: Automatically classifies queries and routes to appropriate retrieval strategies
+- **Vector-Based Retrieval**: Semantic search through medical knowledge with relevance scoring
+- **Emergency Detection**: Immediate identification and response to medical emergencies
+- **Source Attribution**: Every response includes verifiable medical sources with confidence scores
+- **Multi-Layer Safety Validation**: Advanced safety checking with medical disclaimer injection
+- **Confidence Scoring**: Quantified trust levels for all medical information provided
+
+
 ## RAG Supported Architecture(WIP)
 
-RAG is being built with the following capabilities to solve the Key LLM limitations:
+RAG is built with the following capabilities to solve the Key LLM limitations:
 
-- Eliminates Hallucinations: Grounds responses in verified medical sources.
-
-- Up-to-Date Information: Dynamic retrieval from the latest medical databases.
-
-- Traceability: Every response can reference its source (e.g., CDC, DrugBank).
-
-- Customization: Blend general medical knowledge with your proprietary guidelines.
+- ✅ **Eliminates Hallucinations**: Grounds responses in verified medical sources
+- ✅ **Up-to-Date Information**: Dynamic retrieval from latest medical databases  
+- ✅ **Traceability**: Every response references its source (CDC, DrugBank, internal KB)
+- ✅ **Customization**: Blend general medical knowledge with proprietary guidelines
 <img width="6323" height="702" alt="RAG Integration Architecture" src="https://github.com/user-attachments/assets/c90d5e5c-6377-4f83-96ae-440a188794d7" />
 
 
@@ -132,4 +145,37 @@ context = retrieve_medical_context(
 
 # Step 3: Combined response
 response = combine_kb_and_rag(kb_diabetes, kb_kidney, context)
+```
+
+
+
+## 🔧 **Quick Setup**
+
+### 1. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Set up Pinecone API Key
+```bash
+export PINECONE_API_KEY="your-pinecone-api-key-here"
+```
+
+### 3. Initialize RAG System
+```bash
+python setup_rag.py
+```
+
+### 4. Test RAG Components
+```bash
+python test_rag_system.py
+```
+
+### 5. Start the Chatbot
+```bash
+# Terminal 1: Start RASA Action Server
+rasa run actions
+
+# Terminal 2: Start Chatbot Interface  
+rasa shell
 ```
