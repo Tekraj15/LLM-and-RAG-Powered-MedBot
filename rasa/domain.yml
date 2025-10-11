@@ -16,6 +16,34 @@ entities:
   - duration
   - substance
 
+slots:
+  symptom:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: symptom
+  duration:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: duration
+  query_type:
+    type: text
+    mappings:
+      - type: custom
+  confidence_score:
+    type: float
+    mappings:
+      - type: custom
+  emergency_detected:
+    type: bool
+    mappings:
+      - type: custom
+  sources_count:
+    type: float
+    mappings:
+      - type: custom
+
 responses:
   utter_greet:
     - text: "Hello! I'm your medical assistant. How can I help today?"
@@ -32,6 +60,8 @@ responses:
 actions:
   - action_check_knowledge_base
   - action_llm_fallback
+  - action_check_symptoms
+  - action_rag_query
 
 session_config:
   session_expiration_time: 60
