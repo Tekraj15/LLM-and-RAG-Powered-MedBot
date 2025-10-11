@@ -25,22 +25,22 @@ def setup_rag_system():
         from rag_core import MedicalVectorStore, MedicalRAGRouter
         from safety_layer.validator import MedicalResponseValidator
         
-        print("✅ RAG modules imported successfully")
+        print("RAG modules imported successfully")
         
         # Step 1: Initialize Pinecone Vector Store
-        print("\n📊 Step 1: Initializing Pinecone Vector Database...")
+        print("\nStep 1: Initializing Pinecone Vector Database...")
         
         # Check for Pinecone API key
         if not os.getenv("PINECONE_API_KEY"):
-            print("❌ PINECONE_API_KEY environment variable not found")
-            print("💡 Please set your Pinecone API key:")
+            print("PINECONE_API_KEY environment variable not found")
+            print("Please set your Pinecone API key:")
             print("   export PINECONE_API_KEY='your-api-key-here'")
             return False
         
         vector_store = MedicalVectorStore(index_name="medical-knowledge-setup")
         
         # Step 2: Load Knowledge Base
-        print("\n📚 Step 2: Loading Medical Knowledge Base...")
+        print("\nStep 2: Loading Medical Knowledge Base...")
         kb_path = "Knowledge-base/med_knowledge.json"
         
         if not os.path.exists(kb_path):
@@ -71,32 +71,32 @@ def setup_rag_system():
         # Test vector search
         test_query = "What are the symptoms of fever?"
         results = vector_store.retrieve(test_query, top_k=3)
-        print(f"   ✓ Vector search test: Found {len(results)} relevant documents")
+        print(f" Vector search test: Found {len(results)} relevant documents")
         
         # Test query classification
         routing_decision = rag_router.classify_query(test_query)
-        print(f"   ✓ Query classification test: {routing_decision.query_type.value} (confidence: {routing_decision.confidence:.2f})")
+        print(f" Query classification test: {routing_decision.query_type.value} (confidence: {routing_decision.confidence:.2f})")
         
         # Test emergency detection
         emergency_query = "I'm having severe chest pain"
         emergency_decision = rag_router.classify_query(emergency_query)
-        print(f"   ✓ Emergency detection test: Emergency flag = {emergency_decision.emergency_flag}")
+        print(f"  Emergency detection test: Emergency flag = {emergency_decision.emergency_flag}")
         
         # Test safety validation
         test_response = "You might have a cold. Consider taking some rest."
         validation_result = validator.validate_response(test_response)
-        print(f"   ✓ Safety validation test: {validation_result.level.value} (safe: {validation_result.is_safe})")
+        print(f"   Safety validation test: {validation_result.level.value} (safe: {validation_result.is_safe})")
         
         # Step 6: Display System Statistics
-        print("\nStep 6: System Statistics")
+        print("\n Step 6: System Statistics")
         stats = vector_store.get_collection_stats()
         print(f"   • Total documents: {stats.get('total_documents', 0)}")
         print(f"   • Categories: {list(stats.get('categories', {}).keys())}")
         print(f"   • Sources: {list(stats.get('sources', {}).keys())}")
         
-        print("\nPinecone RAG System Setup Complete!")
+        print("\n Pinecone RAG System Setup Complete!")
         print("=" * 60)
-        print("Key Features Enabled:")
+        print(" Key Features Enabled:")
         print("   • Pinecone cloud vector database")
         print("   • Intelligent query routing")
         print("   • Scalable vector-based document retrieval")
@@ -105,7 +105,7 @@ def setup_rag_system():
         print("   • Source attribution and traceability")
         print("   • Confidence scoring")
         
-        print("\nNext Steps:")
+        print("\n Next Steps:")
         print("   1. Run 'python test_rag_system.py' to test the system")
         print("   2. Start RASA server with 'rasa run actions'")
         print("   3. Test the chatbot with 'rasa shell'")
@@ -113,20 +113,20 @@ def setup_rag_system():
         return True
         
     except ImportError as e:
-        print(f"Import error: {str(e)}")
-        print("\nSolution: Install required dependencies with:")
+        print(f" Import error: {str(e)}")
+        print("\n Solution: Install required dependencies with:")
         print("   pip install -r requirements.txt")
         return False
         
     except Exception as e:
-        print(f"Setup error: {str(e)}")
+        print(f" Setup error: {str(e)}")
         logger.error(f"Setup failed: {str(e)}")
         return False
 
 def verify_dependencies():
     """Verify all required dependencies are installed"""
     
-    print("🔍 Verifying Dependencies...")
+    print(" Verifying Dependencies...")
     
     required_packages = [
         'sentence_transformers',
@@ -148,11 +148,11 @@ def verify_dependencies():
             missing_packages.append(package)
     
     if missing_packages:
-        print(f"\nMissing packages: {', '.join(missing_packages)}")
-        print("Install with: pip install -r requirements.txt")
+        print(f"\n Missing packages: {', '.join(missing_packages)}")
+        print(" Install with: pip install -r requirements.txt")
         return False
     
-    print("All dependencies verified!")
+    print(" All dependencies verified!")
     return True
 
 if __name__ == "__main__":
@@ -167,8 +167,8 @@ if __name__ == "__main__":
     success = setup_rag_system()
     
     if success:
-        print("\nSetup completed successfully!")
+        print("\n Setup completed successfully!")
         sys.exit(0)
     else:
-        print("\nSetup failed. Please check the errors above.")
+        print("\n Setup failed. Please check the errors above.")
         sys.exit(1)
