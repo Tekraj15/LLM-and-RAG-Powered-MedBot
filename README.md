@@ -12,7 +12,7 @@ An advanced RASA-based medical chatbot with **Retrieval-Augmented Generation (RA
 - **Multi-Layer Safety Validation**: Advanced safety checking with medical disclaimer injection
 - **Confidence Scoring**: Quantified trust levels for all medical information provided
 
-### 🎯 **RAG Solves Key LLM Limitations**
+###  **RAG Solves Key LLM Limitations**
 - ✅ **Eliminates Hallucinations**: Grounds responses in verified medical sources
 - ✅ **Up-to-Date Information**: Dynamic retrieval from latest medical databases  
 - ✅ **Traceability**: Every response references its source (CDC, DrugBank, internal KB)
@@ -138,7 +138,7 @@ LLM Response → Content Analysis → Medical Disclaimer → Source Verification
 - Emergency detection: 100% recall
 - Safety validation: Multi-layer filtering
 
-## 📊 **System Statistics**
+## **System Statistics**
 
 Run `python test_rag_system.py` to see:
 - Total indexed documents
@@ -147,7 +147,7 @@ Run `python test_rag_system.py` to see:
 - Confidence score distributions
 - Performance benchmarks
 
-## 🛡️ **Safety Features**
+## **Safety Features**
 
 ### **Multi-Layer Validation**
 1. **Content Safety**: Detect harmful medical advice
@@ -157,31 +157,12 @@ Run `python test_rag_system.py` to see:
 5. **Emergency Escalation**: Immediate emergency protocol activation
 
 ### **Supported Medical Domains**
-- 💊 **Medications**: Side effects, interactions, dosages
-- 🩺 **Symptoms**: Assessment, urgency levels, guidance  
-- 🏥 **Chronic Care**: Diabetes, hypertension, asthma management
-- 🧠 **Mental Health**: Anxiety, depression, coping strategies
-- 🚨 **Emergencies**: Immediate detection and response protocols
+- **Medications**: Side effects, interactions, dosages
+- **Symptoms**: Assessment, urgency levels, guidance  
+- **Chronic Care**: Diabetes, hypertension, asthma management
+- **Mental Health**: Anxiety, depression, coping strategies
+- **Emergencies**: Immediate detection and response protocols
 
-## 📁 **Project Structure**
-
-```
-LLM-and-RAG-Powered-MedBot/
-├── rag_core/                 # 🆕 Pinecone RAG implementation
-│   ├── vector_store.py       # Pinecone vector database & retrieval
-│   ├── rag_router.py         # Intelligent query routing
-│   └── __init__.py
-├── safety-layer/             # 🔄 Enhanced safety validation
-│   └── validator.py          # Multi-layer safety checks
-├── rasa/                     # 🔄 Enhanced RASA integration  
-│   ├── actions/actions.py    # RAG-integrated actions
-│   ├── domain.yml            # Updated with RAG slots
-│   └── data/                 # Training data
-├── Knowledge-base/           # Medical knowledge
-├── setup_rag.py             # 🆕 Pinecone RAG system initialization
-├── test_rag_system.py       # 🆕 Comprehensive testing
-└── requirements.txt          # 🔄 Updated with Pinecone dependencies
-```
 
 ## 🎯 **Example Interactions**
 
