@@ -3,7 +3,7 @@ rasa[transformers]>=3.6.0,<3.7.0
 rasa-sdk>=3.6.0,<3.7.0
 
 #Numpy
-numpy>=1.21.0,<1.24.0
+numpy>=1.21.0,<2.0.0  # Loosened to allow 1.24+ for compatibility
 
 # NLP & ML
 spacy>=3.7.0,<3.8.0
@@ -36,6 +36,9 @@ pinecone-client>=3.0.0,<4.0.0  # Pinecone vector database
 faiss-cpu>=1.7.4,<2.0.0  # Local vector search fallback
 langchain>=0.1.0,<0.2.0  # RAG framework
 tiktoken>=0.5.1,<0.6.0  # Token counting
+openai>=1.10.0,<2.0.0  # For OpenAIEmbeddings in retriever
+cohere>=4.0.0,<5.0.0  # For CohereRerank in retriever
+
 
 # Enhanced NLP for medical text processing
 transformers>=4.35.0,<5.0.0
@@ -48,3 +51,7 @@ aiohttp>=3.9.0,<4.0.0  # Async HTTP for API calls
 # Spacy Language Model (English)
 #python -m spacy download en_core_web_md
 https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.7.0/en_core_web_md-3.7.0-py3-none-any.whl
+
+# Testing
+pytest>=7.0.0,<8.0.0  # For advanced testing features
+pytest-mock>=3.10.0,<4.0.0  # For mocking in tests
