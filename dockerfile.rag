@@ -1,0 +1,23 @@
+# Dockerfile for RAG Pipeline (Optional Separate Service)
+# Python 3.9 as base
+FROM python:3.9-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy project files
+COPY rag/ /app/rag
+COPY safety_layer/ /app/safety_layer
+COPY requirements.txt /app/
+COPY data/ /app/data
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Environment variables
+ENV DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+ENV PINECONE_API_KEY=${PINECONE_API_KEY}
+ENV OPENAI_API_KEY=${OPENAI_API_KEY}
+
+# Command to run ingestion (can be overridden)
+CMD ["python", "rag/ingestion/ingestion.py"]
