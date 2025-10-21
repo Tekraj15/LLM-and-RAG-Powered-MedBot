@@ -3,7 +3,7 @@
 An advanced RASA-based medical chatbot with Retrieval-Augmented Generation (RAG) capabilities, providing intelligent symptom assessment, medication guidance, mental health support, and chronic disease management with source attribution and safety validation, supported by LLM  for handling ambiguous queries(out of the scope of the Knowledge Base) and generating dynamic responses, and RAG for solving the limitations of LLM.
 
 
-## Data Sources for RAG
+## Data Sources for RAG: Hybrid Knowledge Base
 1. Structured Medical Knowledge
 - DrugBank API: Medication interactions & side effects
 - CDC Guidelines: Prevention & treatment protocols
@@ -11,7 +11,7 @@ An advanced RASA-based medical chatbot with Retrieval-Augmented Generation (RAG)
 - WHO Disease Guidelines: International standards
 
 2. Unstructured Data Processing
-- PDF Parsing and Extraction
+- PDF, JSON, Text files Parsing and Extraction
 
 3. Real-time API Integration with Medical Knowledge Bases
    
@@ -56,8 +56,47 @@ RAG is built with the following capabilities to solve the Key LLM limitations:
 
 
 ## Final Workflow:
-<img width="1532" height="1245" alt="LLM-RAG-Final Workflow" src="https://github.com/user-attachments/assets/a22545c4-1798-473c-8da4-67a2dbc7b50a" />
 
+```mermaid
+graph TD
+    A[User Query] --> B[RASA NLU]
+    B --> C{Query Router}
+
+    C -->|Structured Query| D[Knowledge Base Lookup]
+    C -->|Complex/Open-ended| E[RAG Retrieval]
+
+    subgraph RAG_["RAG Retrieval"]
+        F[Vector Database Query]
+        G[Metadata Filtering]
+        H[Recency/Confidence Check]
+    end
+    style RAG_ fill:#fff9db,stroke:#e2c864,stroke-width:2px
+
+    E --> F
+    F --> G
+    G --> H
+    H --> I[Retrieve Relevant Context]
+
+    subgraph LLM_["LLM Synthesis"]
+        J[LLM + Context Synthesis: Augmentation & Generation]
+        K[Confidence Scoring]
+    end
+    style LLM_ fill:#fff9db,stroke:#e2c864,stroke-width:2px
+
+    I --> J
+    J --> K
+    D --> L[Response Generation]
+    K --> M[Response Validation]
+    L --> M
+
+    M --> N{Safety & Compliance Check}
+    N -->|Critical Case| O[Human Escalation]
+    N -->|Pass| P[Response to User]
+
+    %% Agentic Feedback Loops
+    M -->|Low Confidence| C
+    N -->|Validation Failed| C 
+```
 
 ## Key Workflows:
 
@@ -188,26 +227,46 @@ response = combine_kb_and_rag(kb_diabetes, kb_kidney, context)
 ## 🔧 **Quick Setup**
 
 ### 1. Install Dependencies
+Ensure you have Python 3.9+ installed. Then run:
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Set up Pinecone API Key
+Install the Spacy English model manually:
 ```bash
-export PINECONE_API_KEY="your-pinecone-api-key-here"
+python -m spacy download en_core_web_md
+```
+or use the provided wheel file from the requirements.txt link.
+
+
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
 ```
 
-### 3. Initialize RAG System
+### 3. Set up Environment Variables
 ```bash
-python setup_rag.py
+DEEPSEEK_API_KEY=your-deepseek-api-key
+PINECONE_API_KEY=your-pinecone-api-key
+OPENAI_API_KEY=your-openai-api-key
 ```
+Load them in your shell or let python-dotenv handle it.
 
-### 4. Test RAG Components
+### 4. Initialize the Vector Store
+Populate the Pinecone vector store with your knowledge base:
 ```bash
-python test_rag_system.py
+python rag/ingestion/ingestion.py
 ```
+Ensure knowledge_base/ contains your medical data (e.g., med_knowledge.json).
 
-### 5. Start the Chatbot
+### 5. Run Tests
+Verify core RAG components:
+```bash
+python tests/test_core_components.py
+```
+Fix any failures by adjusting mock data or code as needed.
+
+### 6. Start the Chatbot
 ```bash
 # Terminal 1: Start RASA Action Server
 rasa run actions
