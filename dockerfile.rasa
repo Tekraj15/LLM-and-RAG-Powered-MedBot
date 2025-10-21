@@ -1,0 +1,26 @@
+# Dockerfile for RASA Chatbot and Actions
+# Official RASA image as base
+FROM rasa/rasa:3.7.5-full
+
+# Set working directory
+WORKDIR /app
+
+# Copy project files
+COPY . /app
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Spacy model
+RUN python -m spacy download en_core_web_md
+
+# Expose ports
+EXPOSE 5005 5055
+
+# Environment variables
+ENV DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+ENV PINECONE_API_KEY=${PINECONE_API_KEY}
+ENV OPENAI_API_KEY=${OPENAI_API_KEY}
+
+# Set entrypoint to run both RASA and actions (multi-process)
+CMD ["sh", "-c", "rasa run --enable-api --cors \"*\" & rasa run actions"]
