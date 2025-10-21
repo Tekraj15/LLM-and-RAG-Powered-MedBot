@@ -1,6 +1,6 @@
 ## LLM-and-RAG-Powered-MedBot
 
-An advanced RASA-based medical chatbot with Retrieval-Augmented Generation (RAG) capabilities, providing intelligent symptom assessment, medication guidance, mental health support, and chronic disease management with source attribution and safety validation, supported by LLM  for handling ambiguous queries(out of the scope of the Knowledge Base) and generating dynamic responses, and RAG for solving the limitations of LLM.
+An advanced RASA-based medical chatbot with Retrieval-Augmented Generation (RAG) capabilities, providing intelligent symptom assessment, medication guidance, mental health support, and chronic disease management with source attribution and safety validation. Supported by LLM  for handling ambiguous queries beyond the Knowledge Base and generating dynamic responses, and RAG for solving the limitations of LLM like hallucinations and outdated data.
 
 
 ## Data Sources for RAG: Hybrid Knowledge Base
@@ -27,32 +27,27 @@ MEDICAL_APIS = {
 
 
 
-## RASA Chatbot with LLM Integration: Architecture
+## RASA Chatbot with LLM Integration: Architecture (Before RAG integration)
 
 <img width="1113" height="702" alt="Health-bot Integration Architecture" src="https://github.com/user-attachments/assets/4a885364-ae5a-438b-9fb3-b2c79f8985cc" />
 
 
-## 🚀 New RAG Features
+## Retrieval Augmented Generation(RAG) Integration
 
-### ✅ **Enhanced Capabilities**
-- **Intelligent Query Routing**: Automatically classifies queries and routes to appropriate retrieval strategies
-- **Vector-Based Retrieval**: Semantic search through medical knowledge with relevance scoring
-- **Emergency Detection**: Immediate identification and response to medical emergencies
-- **Source Attribution**: Every response includes verifiable medical sources with confidence scores
-- **Multi-Layer Safety Validation**: Advanced safety checking with medical disclaimer injection
-- **Confidence Scoring**: Quantified trust levels for all medical information provided
-
-
-## RAG Supported Architecture(WIP)
-
-RAG is built with the following capabilities to solve the Key LLM limitations:
+ RAG is built with the following capabilities to solve the Key LLM limitations:
 
 - ✅ **Eliminates Hallucinations**: Grounds responses in verified medical sources
 - ✅ **Up-to-Date Information**: Dynamic retrieval from latest medical databases  
 - ✅ **Traceability**: Every response references its source (CDC, DrugBank, internal KB)
 - ✅ **Customization**: Blend general medical knowledge with proprietary guidelines.
 
-<img width="6323" height="702" alt="RAG Integration Architecture" src="https://github.com/user-attachments/assets/c90d5e5c-6377-4f83-96ae-440a188794d7" />
+### ✅ **Key Features**
+- **Intelligent Query Routing**: Dynamically classifies and routes queries with metadata filters
+- **Vector-Based Retrieval**: Semantic search with MMR and reranking for relevance
+- **Emergency Detection**: Real-time identification with prioritized escalation
+- **Source Attribution**: Verifiable sources with confidence scores in every response
+- **Multi-Layer Safety Validation**: Pre- and post-generation checks with disclaimers
+- **Confidence Scoring**: Quantified trust levels for informed decision-making
 
 
 ## Final Workflow:
@@ -101,7 +96,7 @@ graph TD
 ## Key Workflows:
 
 1. Precision First:
-    Critical queries (e.g., drug interactions) are answered directly from the KB.
+    Critical queries (e.g., drug interactions) that are structured(basis NLU intent/entity detection using regex)are answered directly from the KB.
 
     Example:
     In `actions.py`:  
@@ -109,19 +104,22 @@ graph TD
         return KB["aspirin"]["interactions"]["ibuprofen"]
 
 2. RAG Retrieval Process
-   
-4. LLM Augmentation with RAG
-    For complex or open-ended questions (e.g., "How to manage diabetes?"), LLM elaborates using KB data.
+   Handles complex queries with semantic search and metadata filtering (e.g., recency, category).
+
+3. LLM Augmentation with RAG
+    For complex or open-ended questions (e.g., "How to manage diabetes?"), LLM elaborates using retrieved context.
 
     Example prompt:
     "Based on [KB_Diabetes_Guide], list 3 diet tips for diabetes. Use simple language."  
 
-3. Enhanced Validation Layer:
-    Cross-check LLM outputs against the KB to filter out hallucinations.
+4. Enhanced Validation Layer before final reponse generation:
+    Validates responses for safety, adds disclaimers, and checks source credibility.
+    Why?: Ensures compliance and accuracy which is very crucial thing in the health/medicine domain, while using AI assistants. 
+    (e.g.,
     
     if llm_response not in KB["allowed_advice"]:  
         return "Consult a doctor."
-
+    )
 
 ## Example Workflows:
 
