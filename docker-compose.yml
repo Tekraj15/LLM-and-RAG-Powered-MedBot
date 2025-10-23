@@ -1,0 +1,40 @@
+# Docker-compose for orchestrating the RASA chatbot and optional RAG pipeline
+version: '3.8'
+
+services:
+  rasa:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5005:5005"
+      - "5055:5055"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - PINECONE_API_KEY=${PINECONE_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - medbot_network
+
+  rag_pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile.rag
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - PINECONE_API_KEY=${PINECONE_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - rasa
+    networks:
+      - medbot_network
+
+networks:
+  medbot_network:
+    driver: bridge
