@@ -9,7 +9,9 @@ WORKDIR /app
 COPY rag/ /app/rag
 COPY safety_layer/ /app/safety_layer
 COPY requirements.txt /app/
-COPY data/ /app/data
+COPY knowledge_base/ /app/data/knowledge_base/
+COPY rasa/data/ /app/data/rasa_data/
+COPY rasa/actions/ /app/actions/
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
