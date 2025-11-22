@@ -1,0 +1,14 @@
+# === RASA CORE (Stable/Legacy Stack) ===
+rasa[transformers]==3.6.21
+# Rasa SDK is needed here if you run simple actions locally, 
+# but usually, the core just talks to the action server.
+rasa-sdk==3.6.2 
+
+# === PINNED DEPENDENCIES (Strict for Rasa) ===
+numpy==1.23.5
+pydantic==1.10.9
+packaging==20.9
+
+# === NLP ===
+spacy>=3.7.0,<3.8.0
+https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.7.0/en_core_web_md-3.7.0-py3-none-any.whl
