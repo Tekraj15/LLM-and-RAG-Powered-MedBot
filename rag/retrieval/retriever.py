@@ -1,10 +1,11 @@
 from typing import List, Optional
 from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
-from langchain.retrievers import BM25Retriever, EnsembleRetriever
+#from langchain.retrievers import BM25Retriever, EnsembleRetriever
+from langchain_community.retrievers import BM25Retriever
 from langchain.retrievers.document_compressors import CohereRerank
 from langchain.retrievers import ContextualCompressionRetriever
-from .document_schema import MedicalDocument
+from rag.ingestion.document_schema import MedicalDocument
 import os
 from dotenv import load_dotenv
 
