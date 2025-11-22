@@ -1,6 +1,6 @@
 from typing import List, Dict
 from langchain_core.prompts import ChatPromptTemplate
-from .document_schema import MedicalDocument
+from rag.ingestion.document_schema import MedicalDocument
 
 class MedicalAugmenter:
     def __init__(self):
