@@ -1,0 +1,27 @@
+# === ACTION SERVER BRIDGE ===
+# We use a newer SDK if possible to avoid conflicts, 
+# but 3.6.2 often works with newer packaging than Rasa Core does.
+rasa-sdk>=3.6.2
+
+# === MODERN RAG STACK (LangChain 0.2 + OpenAI) ===
+langchain==0.2.16 
+langchain-community==0.2.12 
+langchain-core==0.2.38 
+langchain-openai==0.1.23 
+langchain-text-splitters==0.2.4 
+langchain-together==0.1.5 
+langsmith==0.1.114
+
+# === EMBEDDINGS & VECTOR DB ===
+sentence-transformers>=2.5.0,<3.0.0
+langchain-pinecone>=0.1.0
+pinecone-client>=3.2.0,<4.0.0
+openai>=1.30.0,<2.0.0
+
+# === UTILS (Modern Versions) ===
+# These can be newer here because Rasa Core isn't holding them back
+requests>=2.31.0,<3.0.0
+tenacity>=8.2.0,<9.0.0
+python-dotenv>=1.0.0,<2.0.0
+beautifulsoup4>=4.12.0,<5.0.0
+boto3>=1.28.0
