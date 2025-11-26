@@ -1,0 +1,1 @@
+#Initializer for RASA custom actions package
