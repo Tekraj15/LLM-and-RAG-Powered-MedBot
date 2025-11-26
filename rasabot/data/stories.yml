@@ -1,0 +1,55 @@
+version: "3.1"
+
+stories:
+
+# Story 1: Symptom Assessment Flow (Multi-turn)
+- story: symptom check path
+  steps:
+  - intent: symptom_check
+  - action: utter_ask_symptoms  # ASKS USER TO DESCRIBE SYMPTOMS
+  - intent: inform
+    entities:
+    - symptom: "headache"
+  - action: utter_ask_duration  # FOLLOWS UP WITH DURATION QUESTION
+  - intent: inform
+    entities:
+    - duration: "3 days"
+  - action: action_check_knowledge_base
+  - action: utter_disclaimer
+
+# Story 2: Medication Query Flow
+- story: medication interaction check
+  steps:
+  - intent: ask_medication
+    entities:
+    - medication: "ibuprofen"
+    - substance: "alcohol"
+  - action: action_check_knowledge_base
+  - action: utter_disclaimer
+
+# Story 3: Mental Health Support
+- story: anxiety support flow
+  steps:
+  - intent: mental_health
+  - action: action_llm_fallback
+  - action: utter_disclaimer
+
+# Story 4: Chronic Care Management
+- story: diabetes diet advice
+  steps:
+  - intent: chronic_care
+    entities:
+    - condition: "diabetes"
+  - action: action_check_knowledge_base
+
+# Story 5: User provides symptoms immediately
+- story: direct symptom description
+  steps:
+  - intent: symptom_check
+    entities:
+    - symptom: "fever"
+  - action: utter_ask_duration  # SKIPS ask_symptoms SINCE SYMPTOM PROVIDED
+  - intent: inform
+    entities:
+    - duration: "2 days"
+  - action: action_check_knowledge_base

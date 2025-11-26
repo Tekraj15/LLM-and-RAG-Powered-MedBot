@@ -1,0 +1,35 @@
+version: "3.1"
+language: en
+
+pipeline:
+  - name: SpacyNLP
+    model: "en_core_web_md"
+  - name: SpacyTokenizer
+  - name: SpacyFeaturizer 
+  - name: RegexFeaturizer
+  - name: LexicalSyntacticFeaturizer  
+  - name: CountVectorsFeaturizer
+    analyzer: "char_wb"
+    min_ngram: 1
+    max_ngram: 4
+  - name: DIETClassifier
+    epochs: 100
+    constrain_similarities: True  # improves model calibration
+    hidden_layers_sizes:  # ADD FOR BETTER PERFORMANCE
+      text: [256, 128]
+    transformer_size: 256  # REDUCE FROM DEFAULT 512
+    number_of_transformer_layers: 2  # REDUCE FROM DEFAULT 2
+    batch_size: 64  # INCREASE FOR M1/M2
+    weight_sparsity: 0.8
+    loss_type: margin #reduces overconfidence in incorrect predictions
+  - name: EntitySynonymMapper
+
+policies:
+- name: MemoizationPolicy
+- name: TEDPolicy
+  max_history: 5
+  epochs: 100
+  optimizer_name: Adam  # EXPLICITLY SET OPTIMIZER FOR SPEED
+- name: RulePolicy
+
+assistant_id: 20250529-100808-cold-cove
