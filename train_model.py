@@ -8,12 +8,12 @@ os.environ['TF_USE_LEGACY_KERAS'] = '1'   # Forces legacy optimizers
 
 def main():
     # Training configuration
-    # "rasa/" prefix to all paths so it finds the files correctly
+    # "rasabot/" prefix to all paths.
     training_result = train(
-        domain="rasa/domain.yml",
-        config="rasa/config.yml",
-        training_files=["rasa/data/"],
-        output="rasa/models/"
+        domain="rasabot/domain.yml",
+        config="rasabot/config.yml",
+        training_files=["rasabot/data/"],
+        output="rasabot/models/"
     )
     print(f"Model trained and saved at: {training_result.model}")
 
