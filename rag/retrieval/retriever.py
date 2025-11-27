@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+COHERE_API_KEY = os.getenv("COHERE_API_KEY")
 
 class MedicalRetriever:
     def __init__(self, index_name: str = "medbot-rag"):
@@ -47,7 +48,7 @@ class MedicalRetriever:
     # precision-focused retrieval with reranking
     def rerank_retrieval(self, query: str, top_n: int = 5) -> List[MedicalDocument]:
         """Retrieval with reranking for precision."""
-        compressor = CohereRerank(top_n=top_n)
+        compressor = CohereRerank(top_n=top_n, cohere_api_key=COHERE_API_KEY)
         reranker = ContextualCompressionRetriever(
             base_compressor=compressor,
             base_retriever=self.base_retriever
