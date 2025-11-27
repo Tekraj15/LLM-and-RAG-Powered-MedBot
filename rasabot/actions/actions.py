@@ -26,6 +26,7 @@ load_dotenv()
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "my-api-key")
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+COHERE_API_KEY = os.getenv("COHERE_API_KEY")
 
 # --- Knowledge Base ---
 kb_path = os.path.join(os.path.dirname(__file__), "../../Knowledge-base/med_knowledge.json")
@@ -150,9 +151,23 @@ class ActionCheckKnowledgeBase(Action):
         user_query = tracker.latest_message["text"]
         
         kb_result = get_kb_response(user_query)
-        rag_result = {"response": "", "metadata": {"sources": []}, "confidence": 0.5} if not (retriever and augmenter and generator) else generator.generate(augmenter.augment(user_query, retriever.retrieve(user_query, strategy="rerank")))
-        combined = combine_responses(kb_result, rag_result) if kb_result["response"] and rag_result.get("response") else (kb_result if kb_result["response"] else rag_result)
-        validation_result: ValidationResult = validator.validate_response(combined["response"], combined["metadata"].get("sources", []), intent)
+        # RAG Retrieval with Error Handling
+        rag_result = {"response": "", "metadata": {"sources": []}, "confidence": 0.5}
+        try:
+            if retriever and augmenter and generator:
+                docs = retriever.retrieve(user_query, strategy="rerank")
+                augmented = augmenter.augment(user_query, docs)
+                rag_result = generator.generate(augmented)
+        except Exception as e:
+            logger.error(f"RAG Pipeline Failed: {e}")
+        
+        # Combine Results
+        if kb_result["response"] and rag_result.get("response"):
+            combined = combine_responses(kb_result, rag_result)
+        else:
+            combined = kb_result if kb_result["response"] else rag_result
+
+        validation_result: ValidationResult = validator.validate_response(combined.get("response", "No data"), combined.get("metadata", {}).get("sources", []), intent)
 
         response_text = validation_result.modified_response
         if intent == "ask_medication" and tracker.latest_message.get("entities"):
