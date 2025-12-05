@@ -61,20 +61,70 @@ except Exception as e:
 
 
 # --- Helper Functions ---
-def get_kb_response(query: str) -> Dict:
+def normalize_duration(duration_text: str) -> str:
+    """Convert natural language duration to KB urgency keys."""
+    if not duration_text:
+        return None
+    
+    duration_text = duration_text.lower().strip()
+    
+    # Direct match check
+    if duration_text in ["<24h", "24h-72h", ">72h"]:
+        return duration_text
+
+    # Extract number and unit
+    import re
+    match = re.search(r'(\d+)\s*(h|hr|hours?|d|days?|w|weeks?|m|mins?|minutes?)', duration_text)
+    if not match:
+        return None
+        
+    value = int(match.group(1))
+    unit = match.group(2)
+    
+    hours = 0
+    if unit.startswith('h'):
+        hours = value
+    elif unit.startswith('d'):
+        hours = value * 24
+    elif unit.startswith('w'):
+        hours = value * 24 * 7
+    elif unit.startswith('m'):
+        hours = value / 60
+        
+    if hours < 24:
+        return "<24h"
+    elif 24 <= hours <= 72:
+        return "24h-72h"
+    else:
+        return ">72h"
+
+def get_kb_response(query: str, duration: str = None) -> Dict:
     """Fetch response from structured KB (Symptoms & Interactions)."""
     query_lower = query.lower()
+    
+    # Normalize duration if provided
+    normalized_duration = normalize_duration(duration) if duration else None
     
     # 1. Check Symptoms
     symptoms = MEDICAL_KB.get("symptoms", {})
     for name, data in symptoms.items():
         # Match name or description
         if name.replace("_", " ") in query_lower or data.get("description", "").lower() in query_lower:
+            urgency_data = data.get("urgency", {})
+            urgency_msg = "Consult a doctor if symptoms persist."
+            
+            if urgency_data:
+                if normalized_duration and normalized_duration in urgency_data:
+                    urgency_msg = urgency_data[normalized_duration]
+                else:
+                    # Default to first item if no duration match or no duration provided
+                    urgency_msg = list(urgency_data.values())[0]
+
             response_text = (
                 f"**Symptom:** {name.replace('_', ' ').title()}\n"
                 f"**Description:** {data.get('description')}\n"
                 f"**Common Causes:** {', '.join(data.get('common_causes', []))}\n"
-                f"**Urgency:** {list(data.get('urgency', {}).values())[0]}"
+                f"**Urgency:** {urgency_msg}"
             )
             return {"response": response_text, "source": "internal_kb_symptoms", "confidence": 0.95}
 
@@ -117,19 +167,23 @@ class ActionCheckSymptoms(Action):
         full_query = " ".join(query_parts)
 
         validation_result: ValidationResult
-        if retriever and augmenter and generator:
-            docs = retriever.retrieve(full_query, strategy="mmr", metadata_filter={"category": "symptom", "last_updated": {"$gte": "2023-01-01"}})
-            augmented = augmenter.augment(full_query, docs)
-            rag_result = generator.generate(augmented)
-            validation_result = validator.validate_response(rag_result["response"], rag_result["metadata"]["sources"], "symptom")
-        else:
-            validation_result = validator.validate_response("No RAG data available. Consult a doctor.")
+        try:
+            if retriever and augmenter and generator:
+                docs = retriever.retrieve(full_query, strategy="mmr", metadata_filter={"category": "symptom", "last_updated": {"$gte": "2023-01-01"}})
+                augmented = augmenter.augment(full_query, docs)
+                rag_result = generator.generate(augmented)
+                validation_result = validator.validate_response(rag_result["response"], rag_result["metadata"]["sources"], "symptom")
+            else:
+                validation_result = validator.validate_response("No RAG data available. Consult a doctor.")
+        except Exception as e:
+            logger.error(f"RAG Failed in CheckSymptoms: {e}")
+            validation_result = validator.validate_response("I couldn't check that symptom right now. Please consult a doctor.", [], "error")
 
         response_text = validation_result.modified_response
         if validation_result.confidence_score < 0.7:
             response_text += "\n\nc**Note:** Moderate confidence. Consult a doctor."
-        if validation_result.sources_verified and validation_result.sources:
-            source_info = "\n\n **Sources:** " + ", ".join([f"{s['source']} (conf: {s.get('confidence', 0.8):.1f})" for s in validation_result.sources[:3]])
+        if validation_result.sources_verified and rag_result.get("metadata", {}).get("sources"):
+            source_info = "\n\n **Sources:** " + ", ".join([f"{s['source']} (conf: {s.get('confidence', 0.8):.1f})" for s in rag_result["metadata"]["sources"][:3]])
             response_text += source_info
         if validation_result.warnings:
             response_text += f"\n\n!! **Warnings !!:** {'; '.join(validation_result.warnings)}"
@@ -149,8 +203,9 @@ class ActionCheckKnowledgeBase(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         intent = tracker.latest_message["intent"]["name"]
         user_query = tracker.latest_message["text"]
+        duration = tracker.get_slot("duration")
         
-        kb_result = get_kb_response(user_query)
+        kb_result = get_kb_response(user_query, duration)
         # RAG Retrieval with Error Handling
         rag_result = {"response": "", "metadata": {"sources": []}, "confidence": 0.5}
         try:
@@ -174,8 +229,9 @@ class ActionCheckKnowledgeBase(Action):
             meds = [e["value"] for e in tracker.latest_message["entities"] if e["entity"] == "medication"]
             if meds: response_text += f"\n\n**Medications:** {', '.join(meds)}"
 
-        if validation_result.sources_verified and validation_result.sources:
-            source_info = "\n\n**Sources:** " + ", ".join([f"{s['source']}" for s in validation_result.sources[:2]])
+        sources = combined.get("metadata", {}).get("sources", [])
+        if validation_result.sources_verified and sources:
+            source_info = "\n\n**Sources:** " + ", ".join([f"{s['source']}" for s in sources[:2]])
             response_text += source_info
 
         if validation_result.confidence_score < 0.7:
@@ -195,19 +251,37 @@ class ActionLLMFallback(Action):
 
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         user_query = tracker.latest_message["text"]
+        duration = tracker.get_slot("duration")
         validation_result: ValidationResult
-        if retriever and augmenter and generator:
-            docs = retriever.retrieve(user_query, strategy="mmr")
-            augmented = augmenter.augment(user_query, docs)
-            rag_result = generator.generate(augmented)
-            validation_result = validator.validate_response(rag_result["response"], rag_result["metadata"]["sources"], "general_health")
+        # 1. Try KB First
+        kb_result = get_kb_response(user_query, duration)
+        
+        if kb_result["confidence"] > 0.8:
+             # If KB has a strong match, use it!
+             validation_result = validator.validate_response(kb_result["response"], [{"source": kb_result["source"]}], "general_health")
         else:
-            validation_result = validator.validate_response("No data available. Consult a doctor.")
+            # 2. Try RAG
+            try:
+                if retriever and augmenter and generator:
+                    docs = retriever.retrieve(user_query, strategy="mmr")
+                    augmented = augmenter.augment(user_query, docs)
+                    rag_result = generator.generate(augmented)
+                    validation_result = validator.validate_response(rag_result["response"], rag_result["metadata"]["sources"], "general_health")
+                else:
+                    validation_result = validator.validate_response("No data available. Consult a doctor.")
+            except Exception as e:
+                logger.error(f"RAG/LLM Failed in Fallback: {e}")
+                # 3. Final Fallback if RAG crashes
+                if kb_result["response"]:
+                     validation_result = validator.validate_response(kb_result["response"], [{"source": kb_result["source"]}], "general_health")
+                else:
+                     validation_result = validator.validate_response("I'm having trouble connecting to my brain right now. Please try again later.", [], "error")
 
         response_text = validation_result.modified_response
         response_text += "\n\n**Note:** General guidance only. Consult a healthcare professional."
-        if validation_result.sources_verified and validation_result.sources:
-            source_info = "\n\n**Based on:** " + ", ".join([f"{s['source']}" for s in validation_result.sources[:2]])
+        sources = rag_result.get("metadata", {}).get("sources", []) if 'rag_result' in locals() else []
+        if validation_result.sources_verified and sources:
+            source_info = "\n\n**Based on:** " + ", ".join([f"{s['source']}" for s in sources[:2]])
             response_text += source_info
         if validation_result.warnings:
             response_text += f"\n\n!! **Warnings !!:** {'; '.join(validation_result.warnings)}"
@@ -225,16 +299,21 @@ class ActionRAGQuery(Action):
     def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         user_query = tracker.latest_message["text"]
         validation_result: ValidationResult
-        if retriever and augmenter and generator:
-            docs = retriever.retrieve(user_query, strategy="mmr", metadata_filter={"last_updated": {"$gte": "2024-01-01"}})
-            rag_result = generator.generate(augmenter.augment(user_query, docs))
-            validation_result = validator.validate_response(rag_result["response"], rag_result["metadata"]["sources"], "complex")
-        else:
-            validation_result = validator.validate_response("No RAG data available. Consult a doctor.", query_type="complex")
+        try:
+            if retriever and augmenter and generator:
+                docs = retriever.retrieve(user_query, strategy="mmr", metadata_filter={"last_updated": {"$gte": "2025-1-01"}})
+                rag_result = generator.generate(augmenter.augment(user_query, docs))
+                validation_result = validator.validate_response(rag_result["response"], rag_result["metadata"]["sources"], "complex")
+            else:
+                validation_result = validator.validate_response("No RAG data available. Consult a doctor.", query_type="complex")
+        except Exception as e:
+            logger.error(f"RAG Failed in Query: {e}")
+            validation_result = validator.validate_response("I'm unable to process complex queries right now.", [], "error")
 
         response_parts = [validation_result.modified_response]
-        if validation_result.sources_verified and validation_result.sources:
-            source_details = [f"• {s['source']} (conf: {s.get('confidence', 0.8):.1f})" + (f" - Updated: {s.get('last_updated', '')}" if s.get('last_updated') else "") for s in validation_result.sources[:3]]
+        sources = rag_result.get("metadata", {}).get("sources", []) if 'rag_result' in locals() else []
+        if validation_result.sources_verified and sources:
+            source_details = [f"• {s['source']} (conf: {s.get('confidence', 0.8):.1f})" + (f" - Updated: {s.get('last_updated', '')}" if s.get('last_updated') else "") for s in sources[:3]]
             response_parts.append(f"\n\n📚 **Detailed Sources:**\n" + "\n".join(source_details))
 
         confidence = validation_result.confidence_score
@@ -253,7 +332,7 @@ class ActionRAGQuery(Action):
             SlotSet("query_type", "complex"),
             SlotSet("confidence_score", confidence),
             SlotSet("emergency_detected", False),
-            SlotSet("sources_count", len(validation_result.sources) if validation_result.sources_verified else 0)
+            SlotSet("sources_count", len(sources) if validation_result.sources_verified else 0)
         ]
 
 class ActionEmergencyResponse(Action):
